@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Smart District Personnel System — อำเภอพิมาย</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap');
+:root{
+  --red:#c0392b;--rd:#7b2213;--rm:#a93226;--rl:#f5e6e4;
+  --gold:#d4a017;--gl:#fdf3d0;--dark:#1a1a2e;--gray:#6b7280;
+  --grl:#f1f5f9;--grm:#e5e7eb;--green:#16a34a;--gnl:#dcfce7;
+  --blue:#1d4ed8;--bll:#dbeafe;--orange:#ea580c;--orl:#ffedd5;
+  --purple:#7c3aed;--prl:#ede9fe;--bg:#f0ece4;
+  --sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{height:-webkit-fill-available}
+body{font-family:'Sarabun',-apple-system,sans-serif;background:var(--bg);
+  min-height:100vh;min-height:-webkit-fill-available;color:var(--dark);
+  overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+/* LAYOUT */
+.layout{display:flex;min-height:100vh}
+.sb{width:220px;background:linear-gradient(180deg,var(--rd),#3d0c0c);color:#fff;
+  flex-shrink:0;position:fixed;top:0;left:0;height:100vh;z-index:50;
+  display:flex;flex-direction:column;transition:transform .28s ease}
+.sb.hidden{transform:translateX(-220px)}
+.sb-logo{padding:calc(12px + var(--sat)) 14px 12px;border-bottom:1px solid rgba(255,255,255,.12)}
+.sb-logo h1{font-size:.95rem;font-weight:800;line-height:1.2}
+.sb-logo p{font-size:.62rem;opacity:.72;margin-top:1px}
+.sb-badge{display:inline-block;background:var(--gold);color:#7b2213;
+  font-size:.58rem;font-weight:800;padding:1px 8px;border-radius:10px;margin-top:4px}
+.sb-nav{flex:1;padding:8px 7px;overflow-y:auto;scrollbar-width:none}
+.sb-nav::-webkit-scrollbar{display:none}
+.sb-sec{font-size:.55rem;font-weight:700;opacity:.45;text-transform:uppercase;
+  letter-spacing:.08em;padding:11px 8px 3px}
+.nbtn{display:flex;align-items:center;gap:8px;padding:8px 10px;border:none;
+  background:transparent;color:rgba(255,255,255,.75);font-family:inherit;
+  font-size:.8rem;font-weight:500;cursor:pointer;border-radius:8px;
+  width:100%;text-align:left;transition:all .15s}
+.nbtn:hover{background:rgba(255,255,255,.1);color:#fff}
+.nbtn.active{background:rgba(255,255,255,.18);color:#fff;font-weight:700}
+.nbtn .ni{font-size:1.05rem;width:20px;text-align:center;flex-shrink:0}
+.nbtn .nc{font-size:.57rem;background:var(--gold);color:#7b2213;
+  padding:1px 5px;border-radius:7px;margin-left:auto;font-weight:800}
+.sb-foot{padding:8px 10px calc(8px + var(--sab));
+  border-top:1px solid rgba(255,255,255,.1);
+  font-size:.62rem;opacity:.55;text-align:center}
+.main{flex:1;margin-left:220px;display:flex;flex-direction:column;transition:margin .28s}
+.topbar{background:#fff;border-bottom:2px solid var(--grm);
+  padding:11px 20px;display:flex;align-items:center;gap:12px;
+  position:sticky;top:0;z-index:40;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.menu-btn{background:none;border:none;font-size:1.2rem;cursor:pointer;
+  color:var(--gray);flex-shrink:0;display:none;padding:4px}
+.tb-title{font-size:.98rem;font-weight:800}
+.tb-sub{font-size:.66rem;color:var(--gray);margin-top:1px}
+.tb-right{margin-left:auto;display:flex;gap:8px;align-items:center}
+.sp{border-radius:20px;padding:3px 11px;font-size:.7rem;font-weight:700;white-space:nowrap}
+.sp-blue{background:var(--bll);color:#1e40af}
+.sp-red{background:var(--rl);color:var(--rm)}
+.content{flex:1;padding:18px;max-width:1400px;width:100%}
+.view{display:none}.view.active{display:block}
+
+/* STATS */
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:10px;margin-bottom:18px}
+.sc{background:#fff;border-radius:13px;padding:14px;
+  box-shadow:0 1px 5px rgba(0,0,0,.07);border-left:4px solid var(--grm);
+  cursor:pointer;transition:all .15s;user-select:none}
+.sc:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,.1)}
+.sc:active{transform:scale(.97);opacity:.85}
+.sc-n{font-size:1.9rem;font-weight:800;line-height:1}
+.sc-l{font-size:.68rem;color:var(--gray);margin-top:4px;line-height:1.3}
+
+/* SECTION HDR */
+.sh{display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:10px;gap:8px;flex-wrap:wrap}
+.st{font-size:.95rem;font-weight:800;display:flex;align-items:center;gap:6px}
+.st::before{content:'';width:4px;height:1em;background:var(--red);
+  border-radius:2px;flex-shrink:0}
+
+/* BUTTONS */
+.btn{padding:7px 14px;border:none;border-radius:9px;font-family:inherit;
+  font-size:.76rem;font-weight:700;cursor:pointer;display:inline-flex;
+  align-items:center;gap:5px;white-space:nowrap;transition:all .15s}
+.btn:active{opacity:.8}
+.b-red{background:var(--red);color:#fff}
+.b-green{background:var(--green);color:#fff}
+.b-blue{background:var(--blue);color:#fff}
+.b-gray{background:var(--grm);color:var(--gray)}
+.b-gold{background:var(--gold);color:#7b2213}
+.b-sm{padding:5px 10px;font-size:.68rem}
+
+/* FILTER BAR */
+.fb{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
+.fb select,.fb input{font-family:inherit;font-size:14px;
+  border:1.5px solid var(--grm);border-radius:9px;background:#fff;
+  color:var(--dark);-webkit-appearance:none;outline:none;
+  padding:7px 26px 7px 9px}
+.fb select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b7280' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 8px center;cursor:pointer}
+.fb select:focus,.fb input:focus{border-color:var(--red)}
+.sw{position:relative;flex:1;min-width:150px;max-width:280px}
+.sw input{width:100%;padding-left:32px}
+.si{position:absolute;left:9px;top:50%;transform:translateY(-50%);
+  color:var(--gray);pointer-events:none;font-size:.9rem}
+
+/* PERSON CARDS */
+.pg{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:9px}
+.pc{background:#fff;border-radius:12px;padding:12px;
+  box-shadow:0 1px 5px rgba(0,0,0,.07);border-left:5px solid var(--grm);
+  cursor:pointer;transition:all .15s;user-select:none}
+.pc:hover{transform:translateY(-1px);box-shadow:0 3px 12px rgba(0,0,0,.09)}
+.pc:active{opacity:.8;transform:scale(.98)}
+.pc.cx{border-left-color:#991b1b;background:#fff8f8}
+.pc.c3{border-left-color:#c2410c;background:#fff9f4}
+.pc.c9{border-left-color:#b45309;background:#fffceb}
+.pc.ck{border-left-color:var(--green)}
+.pt{display:flex;align-items:flex-start;gap:9px}
+.av{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:1rem;font-weight:800;flex-shrink:0}
+.vk{background:#fef3c7;color:#92400e}.vj{background:var(--bll);color:#1e40af}
+.vc{background:var(--prl);color:#6b21a8}.vr{background:#fce7f3;color:#9d174d}
+.vs{background:var(--gnl);color:#065f46}.vd{background:var(--orl);color:#9a3412}
+.vo{background:var(--grl);color:#475569}
+.pi{flex:1;min-width:0}
+.pn{font-size:.88rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ps{font-size:.68rem;color:var(--gray);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ptg{display:flex;gap:4px;margin-top:5px;flex-wrap:wrap;align-items:center}
+.tg{font-size:.61rem;padding:2px 6px;border-radius:7px;font-weight:600;white-space:nowrap}
+.tk{background:#fef3c7;color:#92400e}.tj{background:var(--bll);color:#1e40af}
+.tc{background:var(--prl);color:#6b21a8}.tr{background:#fce7f3;color:#9d174d}
+.ts{background:var(--gnl);color:#065f46}.td{background:var(--orl);color:#9a3412}
+.to{background:var(--grl);color:#475569}
+.tx{background:#fee2e2;color:#991b1b}.t3{background:#ffedd5;color:#c2410c}
+.t9{background:#fef9c3;color:#854d0e}.tok{background:var(--gnl);color:#166534}
+.pph{font-size:.68rem;color:var(--blue);display:flex;align-items:center;
+  gap:3px;margin-top:4px;text-decoration:none}
+.pph:hover{text-decoration:underline}
+
+/* TABLE */
+.tw{background:#fff;border-radius:12px;overflow:hidden;
+  box-shadow:0 1px 5px rgba(0,0,0,.07);overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:560px}
+th{background:var(--rd);color:#fff;padding:8px 11px;font-size:.73rem;font-weight:700;text-align:left;white-space:nowrap}
+td{padding:7px 11px;font-size:.75rem;border-bottom:1px solid #f9fafb;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafbfc}
+.ro td{background:#fafcff}
+.tc2{text-align:center}
+
+/* MODAL */
+.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);
+  z-index:200;align-items:flex-end;justify-content:center}
+.ov.show{display:flex}
+@media(min-width:640px){.ov{align-items:center}}
+.md{background:#fff;border-radius:20px 20px 0 0;
+  padding:18px 18px calc(18px + var(--sab));width:100%;max-width:540px;
+  animation:mup .26s ease;max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+@media(min-width:640px){.md{border-radius:16px;max-height:86vh}
+  @keyframes mup{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+}
+@keyframes mup{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.mh{width:34px;height:4px;background:var(--grm);border-radius:2px;margin:0 auto 13px}
+@media(min-width:640px){.mh{display:none}}
+.mav{width:60px;height:60px;border-radius:50%;font-size:1.5rem;
+  display:flex;align-items:center;justify-content:center;margin:0 auto 9px;font-weight:800}
+.mn{text-align:center;font-size:1.05rem;font-weight:800}
+.mp{text-align:center;margin-top:4px}
+.ms{background:#f8fafc;border-radius:10px;padding:11px 13px;margin:11px 0}
+.ms h4{font-size:.67rem;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px}
+.mr{display:flex;justify-content:space-between;padding:2px 0;font-size:.8rem}
+.mr span:first-child{color:var(--gray)}
+.mr span:last-child{font-weight:600;color:var(--dark);text-align:right;max-width:58%}
+.pb{height:9px;background:var(--grm);border-radius:5px;overflow:hidden;margin:6px 0}
+.pbf{height:100%;border-radius:5px;transition:width .5s}
+.ab{border-radius:9px;padding:9px 11px;margin-bottom:9px;font-size:.78rem;display:flex;gap:8px;line-height:1.5}
+.ax{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5}
+.ao{background:#ffedd5;color:#9a3412;border:1px solid #fdba74}
+.ay{background:#fef9c3;color:#854d0e;border:1px solid #fde047}
+.mc{width:100%;padding:11px;border:none;border-radius:10px;background:var(--grm);
+  color:var(--gray);font-family:inherit;font-size:.92rem;font-weight:700;cursor:pointer;margin-top:4px}
+.mcl{width:100%;padding:11px;border:none;border-radius:10px;background:var(--green);
+  color:#fff;font-family:inherit;font-size:.92rem;font-weight:700;cursor:pointer;
+  margin-bottom:7px;text-decoration:none;display:block;text-align:center}
+
+/* FORMS */
+.fc{background:#fff;border-radius:13px;padding:16px;
+  box-shadow:0 1px 5px rgba(0,0,0,.07);margin-bottom:12px}
+.fc h3{font-size:.88rem;font-weight:700;margin-bottom:11px}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.fr.full{grid-template-columns:1fr}
+.fl{font-size:.7rem;font-weight:600;color:var(--gray);margin-bottom:3px}
+.fi,.fsl,.fta{width:100%;padding:8px 10px;border:1.5px solid var(--grm);
+  border-radius:8px;font-family:inherit;font-size:15px;background:#fff;
+  color:var(--dark);-webkit-appearance:none;outline:none}
+.fsl{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b7280' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 9px center;padding-right:27px;cursor:pointer}
+.fi:focus,.fsl:focus,.fta:focus{border-color:var(--red)}
+.fta{min-height:80px;resize:vertical;font-size:14px;line-height:1.5}
+
+/* CHART BARS */
+.cg{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:12px;margin-bottom:16px}
+.cc{background:#fff;border-radius:13px;padding:14px;box-shadow:0 1px 5px rgba(0,0,0,.07)}
+.ct{font-size:.8rem;font-weight:700;margin-bottom:11px}
+.br{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+.bl{font-size:.68rem;width:115px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bt{flex:1;height:15px;background:var(--grl);border-radius:4px;overflow:hidden}
+.bf{height:100%;border-radius:4px;transition:width .5s}
+.bn{font-size:.65rem;color:var(--gray);width:26px;text-align:right;flex-shrink:0}
+
+/* TASK */
+.tkc{background:#fff;border-radius:11px;padding:11px 13px;
+  box-shadow:0 1px 4px rgba(0,0,0,.07);margin-bottom:7px;
+  border-left:4px solid var(--grm);display:flex;align-items:flex-start;gap:9px}
+.tkc.sp{border-left-color:var(--orange)}
+.tkc.sd{border-left-color:var(--green);opacity:.78}
+.tkc.so{border-left-color:var(--red);background:#fff9f9}
+.tkd{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:6px}
+
+/* BROADCAST */
+.rc-box{background:var(--rl);border-radius:8px;padding:8px 12px;
+  font-size:.76rem;color:var(--rm);margin-bottom:10px}
+
+/* PIN */
+.po{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);
+  z-index:500;align-items:center;justify-content:center;padding:16px}
+.po.show{display:flex}
+.px{background:#fff;border-radius:16px;padding:22px;width:100%;max-width:270px;text-align:center}
+.px h3{font-size:1rem;font-weight:800;margin-bottom:3px}
+.px p{font-size:.72rem;color:var(--gray);margin-bottom:12px}
+.pds{display:flex;gap:7px;justify-content:center;margin:8px 0 14px}
+.pdd{width:12px;height:12px;border-radius:50%;background:var(--grm);transition:background .15s}
+.pdd.on{background:var(--red)}
+.pp{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;max-width:210px;margin:0 auto}
+.pk{padding:12px;border:none;border-radius:9px;background:var(--grl);
+  font-family:inherit;font-size:1rem;font-weight:700;cursor:pointer}
+.pk:active{background:var(--grm)}
+.pk.del{background:#fee2e2;color:#991b1b}
+.pk.cncl{font-size:.68rem;color:var(--gray)}
+
+/* TOAST */
+.toast{position:fixed;bottom:calc(18px + var(--sab));left:50%;
+  transform:translateX(-50%) translateY(20px);
+  background:rgba(22,163,74,.95);color:#fff;padding:8px 18px;
+  border-radius:20px;font-size:.8rem;font-weight:600;opacity:0;
+  transition:all .3s;z-index:600;pointer-events:none;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.err{background:rgba(185,28,28,.95)}
+.toast.warn{background:rgba(234,88,12,.95)}
+
+/* MISC */
+.empty{text-align:center;padding:36px 20px;color:var(--gray)}
+.ei{font-size:2.3rem;margin-bottom:7px}
+.et{font-size:.8rem}
+.ib{background:var(--bll);color:#1e40af;border-radius:9px;padding:9px 13px;font-size:.76rem;margin-bottom:10px;line-height:1.5}
+.bpad{height:18px}
+.sync-bar{display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:10px;margin-bottom:14px;font-size:.76rem;font-weight:500}
+.sync-idle{background:var(--grl);color:var(--gray);border:1px solid var(--grm)}
+.sync-loading{background:var(--gl);color:#854d0e;border:1px solid #fde68a}
+.sync-ok{background:var(--gnl);color:#166534;border:1px solid #86efac}
+.sync-err{background:var(--rl);color:#991b1b;border:1px solid #fca5a5}
+.sync-bar button{margin-left:auto;padding:4px 12px;border:none;border-radius:7px;font-family:inherit;font-size:.7rem;font-weight:700;cursor:pointer;background:rgba(0,0,0,.08);color:inherit}
+.adm-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+
+@media(max-width:768px){
+  .sb{transform:translateX(-220px)}.sb.open{transform:translateX(0)}
+  .main{margin-left:0}.menu-btn{display:block}
+  .pg{grid-template-columns:1fr}.fr{grid-template-columns:1fr}
+  .sg{grid-template-columns:repeat(2,1fr)}.cg{grid-template-columns:1fr}
+  .content{padding:11px}.adm-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div id="sbOv" onclick="sbClose()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:49"></div>
+
+<aside class="sb" id="sb">
+  <div class="sb-logo">
+    <h1>Smart District</h1>
+    <p>อำเภอพิมาย — นครราชสีมา</p>
+    <span class="sb-badge">Personnel System v1.0</span>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-sec">ภาพรวม</div>
+    <button class="nbtn active" onclick="go('dash')" id="n-dash"><span class="ni">📊</span>Dashboard</button>
+    <button class="nbtn" onclick="go('pb')" id="n-pb"><span class="ni">📞</span>สมุดโทรศัพท์</button>
+    <div class="sb-sec">แจ้งเตือน</div>
+    <button class="nbtn" onclick="go('term')" id="n-term"><span class="ni">⏰</span>ครบวาระ<span class="nc" id="nc-term">—</span></button>
+    <div class="sb-sec">ปฏิบัติงาน</div>
+    <button class="nbtn" onclick="go('ci')" id="n-ci"><span class="ni">✅</span>เช็คอินประชุม</button>
+    <button class="nbtn" onclick="go('ms')" id="n-ms"><span class="ni">📋</span>ติดตามภารกิจ<span class="nc" id="nc-ms">0</span></button>
+    <button class="nbtn" onclick="go('bc')" id="n-bc"><span class="ni">📢</span>Broadcast</button>
+    <div class="sb-sec">ข้อมูล</div>
+    <button class="nbtn" onclick="go('map')" id="n-map"><span class="ni">🗺️</span>แผนที่กำลังพล</button>
+    <button class="nbtn" onclick="go('train')" id="n-train"><span class="ni">🎓</span>ทะเบียนอบรม</button>
+    <div class="sb-sec">ระบบ</div>
+    <button class="nbtn" onclick="go('adm')" id="n-adm"><span class="ni">⚙️</span>จัดการข้อมูล</button>
+  </nav>
+  <div class="sb-foot" id="sbDate">—</div>
+</aside>
+
+<div class="layout">
+<div class="main" id="mainArea">
+<div class="topbar">
+  <button class="menu-btn" onclick="sbToggle()">☰</button>
+  <div>
+    <div class="tb-title" id="pgTitle">Dashboard ภาพรวม</div>
+    <div class="tb-sub">ระบบบริหารกำลังพลปกครองท้องที่ อำเภอพิมาย</div>
+  </div>
+  <div class="tb-right" style="flex-wrap:wrap">
+    <span class="sp sp-blue" id="tp-tot">695 คน</span>
+    <span class="sp sp-red" id="tp-alert">—</span>
+  </div>
+</div>
+<div class="content">
+
+<!-- SETUP SCREEN -->
+<div id="setup-screen" style="display:none;max-width:560px;margin:0 auto;padding-bottom:20px">
+  <div style="background:linear-gradient(135deg,#7b2213,#a93226);color:#fff;border-radius:13px;padding:18px 20px;margin-bottom:14px;display:flex;align-items:flex-start;gap:14px">
+    <div style="font-size:2rem;flex-shrink:0">🚀</div>
+    <div><div style="font-size:1rem;font-weight:800;margin-bottom:4px">ยินดีต้อนรับสู่ SDPS!</div>
+    <div style="font-size:.78rem;opacity:.9;line-height:1.6">กรุณาตั้งค่า Google Sheet ก่อนเริ่มใช้งาน ทำเพียงครั้งเดียว</div></div>
+  </div>
+  <div class="fc">
+    <h3>🔗 ตั้งค่า Google Apps Script URL</h3>
+    <div style="border-left:3px solid var(--red);padding:8px 12px;margin-bottom:10px;background:var(--rl);border-radius:0 8px 8px 0;font-size:.78rem;line-height:1.7">
+      <strong>ขั้นตอน (ทำครั้งเดียว):</strong><br>
+      1. Upload <code style="background:#fff;padding:1px 5px;border-radius:4px">setup_data.xlsx</code> ไปยัง Google Drive → เปิดด้วย Google Sheets<br>
+      2. Extensions → Apps Script → วางโค้ดจาก <code style="background:#fff;padding:1px 5px;border-radius:4px">apps_script.gs</code> → Save<br>
+      3. Deploy → New deployment → Web App (Execute: Me / Access: Anyone) → Copy URL<br>
+      4. วาง URL ด้านล่างนี้
+    </div>
+    <div class="fl" style="margin-bottom:4px">Apps Script Web App URL</div>
+    <input class="fi" id="setup-url" type="url" placeholder="https://script.google.com/macros/s/.../exec" style="font-size:13px;margin-bottom:8px">
+    <button class="btn b-red" style="width:100%;justify-content:center" onclick="doSetup()">✅ บันทึกและเริ่มใช้งาน</button>
+    <div id="setup-err" style="font-size:.74rem;color:#c0392b;margin-top:8px;display:none"></div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="view active" id="v-dash">
+  <div class="sync-bar sync-idle" id="sync-bar">
+    <span id="sync-txt">📋 ยังไม่ได้ Sync ข้อมูล</span>
+    <button onclick="syncNow()">🔄 Sync ตอนนี้</button>
+  </div>
+  <div class="sg" id="d-stats"></div>
+  <div class="cg" id="d-charts"></div>
+  <div class="sh">
+    <div class="st">🚨 รายการเร่งด่วน (ครบวาระ ≤90 วัน)</div>
+    <button class="btn b-red b-sm" onclick="xls('urg')">📥 Export</button>
+  </div>
+  <div class="pg" id="d-urgent"></div>
+  <div class="bpad"></div>
+</div>
+
+<!-- PHONEBOOK -->
+<div class="view" id="v-pb">
+  <div class="fb">
+    <div class="sw"><span class="si">🔍</span>
+      <input type="search" id="pb-q" placeholder="ค้นหาชื่อ, หมู่บ้าน, เบอร์..." oninput="rPB()" autocomplete="off" autocorrect="off" autocapitalize="off"></div>
+    <select id="pb-tb" onchange="rPB()"><option value="">ทุกตำบล</option><option value="กระชอน">ต.กระชอน</option>
+<option value="กระเบื้องใหญ่">ต.กระเบื้องใหญ่</option>
+<option value="ชีวาน">ต.ชีวาน</option>
+<option value="ดงใหญ่">ต.ดงใหญ่</option>
+<option value="ท่าหลวง">ต.ท่าหลวง</option>
+<option value="ธารละหลอด">ต.ธารละหลอด</option>
+<option value="นิคมสร้างตนเอง">ต.นิคมสร้างตนเอง</option>
+<option value="รังกาใหญ่">ต.รังกาใหญ่</option>
+<option value="สัมฤทธิ์">ต.สัมฤทธิ์</option>
+<option value="หนองระเวียง">ต.หนองระเวียง</option>
+<option value="โบสถ์">ต.โบสถ์</option>
+<option value="ในเมือง">ต.ในเมือง</option></select>
+    <select id="pb-pos" onchange="rPB()">
+      <option value="">ทุกตำแหน่ง</option>
+      <option value="กน.">กำนัน</option><option value="ผญบ.">ผู้ใหญ่บ้าน</option>
+      <option value="ผปค.">ผู้ช่วยฯ(ปกครอง)</option><option value="ผรส.">ผู้ช่วยฯ(รักษาฯ)</option>
+      <option value="สว.">สารวัตรกำนัน</option><option value="แพทย์">แพทย์ประจำตำบล</option>
+    </select>
+    <button class="btn b-red b-sm" onclick="xls('pb')">📥 Excel</button>
+  </div>
+  <div class="tw"><table>
+    <thead><tr><th>#</th><th>ชื่อ-สกุล</th><th>ตำแหน่ง</th><th>ตำบล</th><th>ม.</th><th>หมู่บ้าน</th><th>โทรศัพท์</th><th></th></tr></thead>
+    <tbody id="pb-body"></tbody>
+  </table></div>
+  <div id="pb-cnt" style="font-size:.68rem;color:var(--gray);text-align:right;margin-top:5px"></div>
+  <div class="bpad"></div>
+</div>
+
+<!-- TERM ALERT -->
+<div class="view" id="v-term">
+  <div class="sg" id="ta-stats"></div>
+  <div class="fb">
+    <select id="ta-r" onchange="rTA()">
+      <option value="urg">ทั้งหมดที่ต้องดำเนินการ</option>
+      <option value="exp">หมดวาระแล้ว</option>
+      <option value="30">ภายใน 30 วัน</option>
+      <option value="90">ภายใน 90 วัน</option>
+      <option value="180">ภายใน 180 วัน</option>
+      <option value="365">ภายใน 1 ปี</option>
+    </select>
+    <select id="ta-tb" onchange="rTA()"><option value="">ทุกตำบล</option><option value="กระชอน">ต.กระชอน</option>
+<option value="กระเบื้องใหญ่">ต.กระเบื้องใหญ่</option>
+<option value="ชีวาน">ต.ชีวาน</option>
+<option value="ดงใหญ่">ต.ดงใหญ่</option>
+<option value="ท่าหลวง">ต.ท่าหลวง</option>
+<option value="ธารละหลอด">ต.ธารละหลอด</option>
+<option value="นิคมสร้างตนเอง">ต.นิคมสร้างตนเอง</option>
+<option value="รังกาใหญ่">ต.รังกาใหญ่</option>
+<option value="สัมฤทธิ์">ต.สัมฤทธิ์</option>
+<option value="หนองระเวียง">ต.หนองระเวียง</option>
+<option value="โบสถ์">ต.โบสถ์</option>
+<option value="ในเมือง">ต.ในเมือง</option></select>
+    <button class="btn b-red b-sm" onclick="xls('term')">📥 Excel</button>
+  </div>
+  <div class="pg" id="ta-list"></div>
+  <div class="bpad"></div>
+</div>
+
+<!-- CHECKIN -->
+<div class="view" id="v-ci">
+  <div class="ib" id="mtg-banner">📅 ตั้งค่าการประชุมได้ที่หน้าจัดการข้อมูล</div>
+  <div class="sg" id="ci-stats"></div>
+  <div class="fb">
+    <div class="sw"><span class="si">🔍</span>
+      <input type="search" id="ci-q" placeholder="ค้นหาชื่อ..." oninput="rCI()" autocomplete="off" autocorrect="off" autocapitalize="off"></div>
+    <select id="ci-tb" onchange="rCI()"><option value="">ทุกตำบล</option><option value="กระชอน">ต.กระชอน</option>
+<option value="กระเบื้องใหญ่">ต.กระเบื้องใหญ่</option>
+<option value="ชีวาน">ต.ชีวาน</option>
+<option value="ดงใหญ่">ต.ดงใหญ่</option>
+<option value="ท่าหลวง">ต.ท่าหลวง</option>
+<option value="ธารละหลอด">ต.ธารละหลอด</option>
+<option value="นิคมสร้างตนเอง">ต.นิคมสร้างตนเอง</option>
+<option value="รังกาใหญ่">ต.รังกาใหญ่</option>
+<option value="สัมฤทธิ์">ต.สัมฤทธิ์</option>
+<option value="หนองระเวียง">ต.หนองระเวียง</option>
+<option value="โบสถ์">ต.โบสถ์</option>
+<option value="ในเมือง">ต.ในเมือง</option></select>
+    <select id="ci-st" onchange="rCI()">
+      <option value="">ทั้งหมด</option>
+      <option value="in">เช็คอินแล้ว</option>
+      <option value="out">ยังไม่มา</option>
+    </select>
+    <button class="btn b-green b-sm" onclick="xls('ci')">📥 Excel</button>
+    <button class="btn b-gray b-sm" onclick="doReset()">🔄 รีเซ็ต</button>
+  </div>
+  <div class="pg" id="ci-list"></div>
+  <div class="bpad"></div>
+</div>
+
+<!-- MISSION -->
+<div class="view" id="v-ms">
+  <div class="sh">
+    <div class="st">📋 ติดตามภารกิจ</div>
+    <button class="btn b-red" onclick="openTask()">➕ มอบหมายภารกิจ</button>
+  </div>
+  <div class="fb">
+    <select id="ms-st" onchange="rMS()">
+      <option value="">ทุกสถานะ</option>
+      <option value="pending">รอดำเนินการ</option>
+      <option value="done">เสร็จแล้ว</option>
+      <option value="overdue">เกินกำหนด</option>
+    </select>
+    <select id="ms-tb" onchange="rMS()"><option value="">ทุกตำบล</option><option value="กระชอน">ต.กระชอน</option>
+<option value="กระเบื้องใหญ่">ต.กระเบื้องใหญ่</option>
+<option value="ชีวาน">ต.ชีวาน</option>
+<option value="ดงใหญ่">ต.ดงใหญ่</option>
+<option value="ท่าหลวง">ต.ท่าหลวง</option>
+<option value="ธารละหลอด">ต.ธารละหลอด</option>
+<option value="นิคมสร้างตนเอง">ต.นิคมสร้างตนเอง</option>
+<option value="รังกาใหญ่">ต.รังกาใหญ่</option>
+<option value="สัมฤทธิ์">ต.สัมฤทธิ์</option>
+<option value="หนองระเวียง">ต.หนองระเวียง</option>
+<option value="โบสถ์">ต.โบสถ์</option>
+<option value="ในเมือง">ต.ในเมือง</option></select>
+  </div>
+  <div id="ms-list"></div>
+  <div class="bpad"></div>
+</div>
+
+<!-- BROADCAST -->
+<div class="view" id="v-bc">
+  <div class="fc">
+    <h3>📢 ส่งข้อความแจ้งเตือนแบบกลุ่ม</h3>
+    <div class="fr">
+      <div><div class="fl">กลุ่มผู้รับ</div>
+        <select class="fsl" id="bc-g" onchange="updRC()">
+          <option value="all">ทุกคน (695 คน)</option>
+          <option value="tb">รายตำบล</option>
+          <option value="กน.">กำนัน</option>
+          <option value="ผญบ.">ผู้ใหญ่บ้าน</option>
+          <option value="ผปค.">ผู้ช่วยฯ(ปกครอง)</option>
+        </select>
+      </div>
+      <div id="bc-sub-w"><div class="fl">เลือกตำบล</div>
+        <select class="fsl" id="bc-sub" onchange="updRC()">
+          <option value="">— เลือก —</option><option value="กระชอน">ต.กระชอน</option>
+<option value="กระเบื้องใหญ่">ต.กระเบื้องใหญ่</option>
+<option value="ชีวาน">ต.ชีวาน</option>
+<option value="ดงใหญ่">ต.ดงใหญ่</option>
+<option value="ท่าหลวง">ต.ท่าหลวง</option>
+<option value="ธารละหลอด">ต.ธารละหลอด</option>
+<option value="นิคมสร้างตนเอง">ต.นิคมสร้างตนเอง</option>
+<option value="รังกาใหญ่">ต.รังกาใหญ่</option>
+<option value="สัมฤทธิ์">ต.สัมฤทธิ์</option>
+<option value="หนองระเวียง">ต.หนองระเวียง</option>
+<option value="โบสถ์">ต.โบสถ์</option>
+<option value="ในเมือง">ต.ในเมือง</option>
+        </select>
+      </div>
+    </div>
+    <div class="rc-box" id="rc-box">📬 ผู้รับ: ทุกคน — 695 คน</div>
+    <div class="fr full" style="margin-bottom:8px">
+      <div><div class="fl">หัวข้อ</div>
+        <input class="fi" id="bc-subj" placeholder="เช่น แจ้งกำหนดการประชุมประจำเดือน" autocomplete="off"></div>
+    </div>
+    <div class="fr full" style="margin-bottom:8px">
+      <div><div class="fl">ข้อความ</div>
+        <textarea class="fta" id="bc-msg" placeholder="พิมพ์ข้อความ..."></textarea></div>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+      <button class="btn b-gray b-sm" onclick="bcTmpl('meet')">📅 แจ้งประชุม</button>
+      <button class="btn b-gray b-sm" onclick="bcTmpl('urg')">🚨 เร่งด่วน</button>
+      <button class="btn b-gray b-sm" onclick="bcTmpl('info')">📋 ทั่วไป</button>
+    </div>
+    <button class="btn b-red" style="width:100%;justify-content:center" onclick="sendBC()">📤 บันทึกและส่ง</button>
+  </div>
+  <div class="sh"><div class="st">📜 ประวัติการส่ง</div></div>
+  <div id="bc-log"></div>
+  <div class="bpad"></div>
+</div>
+
+<!-- MAP -->
+<div class="view" id="v-map">
+  <div class="fb">
+    <select id="mp-tb" onchange="rMap()"><option value="">ทุกตำบล</option><option value="กระชอน">ต.กระชอน</option>
+<option value="กระเบื้องใหญ่">ต.กระเบื้องใหญ่</option>
+<option value="ชีวาน">ต.ชีวาน</option>
+<option value="ดงใหญ่">ต.ดงใหญ่</option>
+<option value="ท่าหลวง">ต.ท่าหลวง</option>
+<option value="ธารละหลอด">ต.ธารละหลอด</option>
+<option value="นิคมสร้างตนเอง">ต.นิคมสร้างตนเอง</option>
+<option value="รังกาใหญ่">ต.รังกาใหญ่</option>
+<option value="สัมฤทธิ์">ต.สัมฤทธิ์</option>
+<option value="หนองระเวียง">ต.หนองระเวียง</option>
+<option value="โบสถ์">ต.โบสถ์</option>
+<option value="ในเมือง">ต.ในเมือง</option></select>
+    <select id="mp-pos" onchange="rMap()">
+      <option value="">ทุกตำแหน่ง</option>
+      <option value="กน.">กำนัน</option>
+      <option value="ผญบ.">ผู้ใหญ่บ้าน</option>
+      <option value="ผปค.">ผู้ช่วยฯ</option>
+    </select>
+    <button class="btn b-blue b-sm" onclick="mapToggle()">🗺️/📋 สลับมุมมอง</button>
+  </div>
+  <div id="map-wrap"></div>
+  <div class="bpad"></div>
+</div>
+
+<!-- TRAINING -->
+<div class="view" id="v-train">
+  <div class="sh">
+    <div class="st">🎓 ทะเบียนการฝึกอบรม</div>
+    <div style="display:flex;gap:7px">
+      <button class="btn b-red" onclick="openTrain()">➕ บันทึกอบรม</button>
+      <button class="btn b-green b-sm" onclick="xls('train')">📥 Excel</button>
+    </div>
+  </div>
+  <div class="fb">
+    <div class="sw"><span class="si">🔍</span>
+      <input type="search" id="tr-q" placeholder="ค้นหาชื่อ / หลักสูตร..." oninput="rTR()" autocomplete="off"></div>
+    <select id="tr-tb" onchange="rTR()"><option value="">ทุกตำบล</option><option value="กระชอน">ต.กระชอน</option>
+<option value="กระเบื้องใหญ่">ต.กระเบื้องใหญ่</option>
+<option value="ชีวาน">ต.ชีวาน</option>
+<option value="ดงใหญ่">ต.ดงใหญ่</option>
+<option value="ท่าหลวง">ต.ท่าหลวง</option>
+<option value="ธารละหลอด">ต.ธารละหลอด</option>
+<option value="นิคมสร้างตนเอง">ต.นิคมสร้างตนเอง</option>
+<option value="รังกาใหญ่">ต.รังกาใหญ่</option>
+<option value="สัมฤทธิ์">ต.สัมฤทธิ์</option>
+<option value="หนองระเวียง">ต.หนองระเวียง</option>
+<option value="โบสถ์">ต.โบสถ์</option>
+<option value="ในเมือง">ต.ในเมือง</option></select>
+  </div>
+  <div id="tr-list"></div>
+  <div class="bpad"></div>
+</div>
+
+<!-- ADMIN -->
+<div class="view" id="v-adm">
+  <div class="adm-grid">
+    <div class="fc">
+      <h3>📅 ตั้งค่าการประชุม</h3>
+      <div class="fl" style="margin-bottom:3px">วันที่ประชุม</div>
+      <input class="fi" type="date" id="cfg-dt" style="margin-bottom:8px">
+      <div class="fl" style="margin-bottom:3px">วาระ</div>
+      <input class="fi" id="cfg-ag" placeholder="เช่น ครั้งที่ 1/2568" style="margin-bottom:8px" autocomplete="off">
+      <div class="fl" style="margin-bottom:3px">สถานที่</div>
+      <input class="fi" id="cfg-ve" placeholder="หอประชุมอำเภอพิมาย" style="margin-bottom:8px" autocomplete="off">
+      <button class="btn b-blue" style="width:100%;justify-content:center" onclick="saveCFG()">💾 บันทึก</button>
+    </div>
+    <div class="fc">
+      <h3>🔗 Google Sheet API</h3>
+      <div class="fl" style="margin-bottom:3px">Apps Script URL</div>
+      <input class="fi" id="gs-url" type="url" placeholder="https://script.google.com/macros/s/.../exec" style="margin-bottom:8px;font-size:12px" autocomplete="off">
+      <button class="btn b-blue" style="width:100%;justify-content:center;margin-bottom:6px" onclick="saveGS()">💾 บันทึก URL</button>
+      <button class="btn b-gold" style="width:100%;justify-content:center" onclick="syncGS()">🔄 Sync จาก Sheet</button>
+      <div id="sync-st" style="font-size:.7rem;color:var(--gray);margin-top:6px"></div>
+    </div>
+    <div class="fc">
+      <h3>🔐 เปลี่ยน PIN Admin</h3>
+      <div class="fl" style="margin-bottom:3px">PIN เดิม</div>
+      <input class="fi" type="password" id="old-pin" placeholder="••••" maxlength="6" style="margin-bottom:8px;letter-spacing:.2em">
+      <div class="fl" style="margin-bottom:3px">PIN ใหม่</div>
+      <input class="fi" type="password" id="new-pin" placeholder="••••" maxlength="6" style="margin-bottom:8px;letter-spacing:.2em">
+      <button class="btn b-red" style="width:100%;justify-content:center" onclick="chPIN()">🔑 เปลี่ยน PIN</button>
+      <div style="font-size:.62rem;color:var(--gray);margin-top:5px;text-align:center">PIN เริ่มต้น: 1234</div>
+    </div>
+    <div class="fc">
+      <h3 id="ap-title">👤 เพิ่มเจ้าหน้าที่</h3>
+      <input type="hidden" id="eu">
+      <input class="fi" id="fp-n" placeholder="ชื่อ-สกุล" autocomplete="off" style="margin-bottom:7px">
+      <div class="fr" style="margin-bottom:7px">
+        <select class="fsl" id="fp-pos">
+          <option value="">— ตำแหน่ง —</option>
+          <option value="กน.">กำนัน</option><option value="ผญบ.">ผู้ใหญ่บ้าน</option>
+          <option value="ผปค.">ผู้ช่วยฯ(ปกครอง)</option><option value="ผรส.">ผู้ช่วยฯ(รักษาฯ)</option>
+          <option value="สว.">สารวัตรกำนัน</option><option value="แพทย์">แพทย์ประจำตำบล</option>
+        </select>
+        <select class="fsl" id="fp-tb"><option value="">— ตำบล —</option><option value="กระชอน">กระชอน</option>
+<option value="กระเบื้องใหญ่">กระเบื้องใหญ่</option>
+<option value="ชีวาน">ชีวาน</option>
+<option value="ดงใหญ่">ดงใหญ่</option>
+<option value="ท่าหลวง">ท่าหลวง</option>
+<option value="ธารละหลอด">ธารละหลอด</option>
+<option value="นิคมสร้างตนเอง">นิคมสร้างตนเอง</option>
+<option value="รังกาใหญ่">รังกาใหญ่</option>
+<option value="สัมฤทธิ์">สัมฤทธิ์</option>
+<option value="หนองระเวียง">หนองระเวียง</option>
+<option value="โบสถ์">โบสถ์</option>
+<option value="ในเมือง">ในเมือง</option></select>
+      </div>
+      <div class="fr" style="margin-bottom:7px">
+        <input class="fi" id="fp-m" placeholder="หมู่ที่" type="number" min="1" max="50">
+        <input class="fi" id="fp-v" placeholder="ชื่อหมู่บ้าน" autocomplete="off">
+      </div>
+      <input class="fi" id="fp-ph" placeholder="โทรศัพท์" type="tel" style="margin-bottom:7px" autocomplete="off">
+      <div class="fr" style="margin-bottom:7px">
+        <div><div class="fl">เริ่มดำรงตำแหน่ง</div><input class="fi" id="fp-s" type="date"></div>
+        <div><div class="fl">ครบวาระ</div><input class="fi" id="fp-e" type="date"></div>
+      </div>
+      <button class="btn b-green" style="width:100%;justify-content:center" id="sp-btn" onclick="savePer()">➕ เพิ่มเจ้าหน้าที่</button>
+      <button class="btn b-gray b-sm" style="width:100%;justify-content:center;margin-top:5px;display:none" id="cx-btn" onclick="cxEdit()">✕ ยกเลิก</button>
+    </div>
+  </div>
+  <div style="margin-top:12px">
+    <div class="sh"><div class="st">👥 รายชื่อทั้งหมด (<span id="ad-tot">695</span> คน)</div></div>
+    <div class="fb"><div class="sw"><span class="si">🔍</span>
+      <input type="search" id="ad-q" placeholder="ค้นหา..." oninput="rAD()" autocomplete="off"></div></div>
+    <div class="tw"><table>
+      <thead><tr><th>#</th><th>ชื่อ-สกุล</th><th>ตำแหน่ง</th><th>ตำบล</th><th>ม.</th><th>ครบวาระ</th><th></th></tr></thead>
+      <tbody id="ad-body"></tbody>
+    </table></div>
+  </div>
+  <div class="bpad"></div>
+</div>
+
+</div></div></div>
+
+<!-- MODAL: CHECK-IN -->
+<div class="ov" id="ov-ci">
+  <div class="md"><div class="mh"></div>
+    <div class="mav" id="ci-av"></div>
+    <div class="mn" id="ci-nm"></div><div class="mp" id="ci-ps"></div>
+    <div id="ci-ab"></div>
+    <div class="ms"><h4>ข้อมูล</h4>
+      <div class="mr"><span>ตำบล</span><span id="ci-tb"></span></div>
+      <div class="mr"><span>หมู่ที่ / หมู่บ้าน</span><span id="ci-mo"></span></div>
+      <div class="mr"><span>โทรศัพท์</span><span id="ci-ph"></span></div>
+    </div>
+    <a id="ci-cl" class="mcl" href="#">📞 โทรหาทันที</a>
+    <button class="btn b-green" style="width:100%;justify-content:center;padding:12px;margin-bottom:7px" id="ci-btn" onclick="doCI()">✅ ยืนยันเช็คอิน</button>
+    <button class="btn" style="width:100%;justify-content:center;padding:12px;background:#fee2e2;color:#991b1b;margin-bottom:7px" id="ci-undo" onclick="undoCI()">↩️ ยกเลิกเช็คอิน</button>
+    <button class="mc" onclick="closeOV('ov-ci')">ปิด</button>
+  </div>
+</div>
+
+<!-- MODAL: DETAIL -->
+<div class="ov" id="ov-dt">
+  <div class="md"><div class="mh"></div>
+    <div class="mav" id="dt-av"></div>
+    <div class="mn" id="dt-nm"></div><div class="mp" id="dt-ps"></div>
+    <div id="dt-ab"></div>
+    <div class="ms"><h4>ข้อมูลส่วนตัว</h4>
+      <div class="mr"><span>ตำบล</span><span id="dt-tb"></span></div>
+      <div class="mr"><span>หมู่ที่ / หมู่บ้าน</span><span id="dt-mo"></span></div>
+      <div class="mr"><span>โทรศัพท์</span><span id="dt-ph"></span></div>
+      <div class="mr"><span>วันเกิด</span><span id="dt-dob"></span></div>
+      <div class="mr"><span>อายุ</span><span id="dt-age"></span></div>
+    </div>
+    <div class="ms"><h4>ข้อมูลตำแหน่ง</h4>
+      <div class="mr"><span>วาระ</span><span id="dt-term"></span></div>
+      <div class="mr"><span>เริ่มดำรงตำแหน่ง</span><span id="dt-st"></span></div>
+      <div class="mr"><span>ครบวาระ</span><span id="dt-end"></span></div>
+      <div class="mr"><span>วันที่เหลือ</span><span id="dt-left"></span></div>
+      <div style="font-size:.66rem;color:var(--gray);display:flex;justify-content:space-between;margin-top:6px">
+        <span id="pb-s"></span><span id="pb-e"></span></div>
+      <div class="pb"><div class="pbf" id="pb-f"></div></div>
+      <div style="text-align:center;font-size:.66rem;color:var(--gray)" id="pb-pct"></div>
+    </div>
+    <a id="dt-cl" class="mcl" href="#">📞 โทรหาทันที</a>
+    <button class="mc" onclick="closeOV('ov-dt')">ปิด</button>
+  </div>
+</div>
+
+<!-- MODAL: TASK -->
+<div class="ov" id="ov-task">
+  <div class="md"><div class="mh"></div>
+    <h3 style="font-size:1rem;font-weight:800;margin-bottom:13px" id="tm-ttl">มอบหมายภารกิจ</h3>
+    <input type="hidden" id="te-id">
+    <div class="fr full" style="margin-bottom:8px">
+      <div><div class="fl">ชื่อภารกิจ</div>
+        <input class="fi" id="t-ttl" placeholder="เช่น สำรวจข้อมูลประชากร" autocomplete="off"></div>
+    </div>
+    <div class="fr" style="margin-bottom:8px">
+      <div><div class="fl">มอบหมายถึง</div>
+        <select class="fsl" id="t-tgt"><option value="all">ทุกคน</option><option value="กระชอน">ต.กระชอน</option>
+<option value="กระเบื้องใหญ่">ต.กระเบื้องใหญ่</option>
+<option value="ชีวาน">ต.ชีวาน</option>
+<option value="ดงใหญ่">ต.ดงใหญ่</option>
+<option value="ท่าหลวง">ต.ท่าหลวง</option>
+<option value="ธารละหลอด">ต.ธารละหลอด</option>
+<option value="นิคมสร้างตนเอง">ต.นิคมสร้างตนเอง</option>
+<option value="รังกาใหญ่">ต.รังกาใหญ่</option>
+<option value="สัมฤทธิ์">ต.สัมฤทธิ์</option>
+<option value="หนองระเวียง">ต.หนองระเวียง</option>
+<option value="โบสถ์">ต.โบสถ์</option>
+<option value="ในเมือง">ต.ในเมือง</option></select>
+      </div>
+      <div><div class="fl">กำหนดส่ง</div><input class="fi" type="date" id="t-due"></div>
+    </div>
+    <div class="fr full" style="margin-bottom:10px">
+      <div><div class="fl">รายละเอียด</div>
+        <textarea class="fta" id="t-desc" placeholder="รายละเอียด..." style="min-height:60px"></textarea></div>
+    </div>
+    <button class="btn b-red" style="width:100%;justify-content:center;padding:11px;margin-bottom:7px" onclick="saveTask()">💾 บันทึก</button>
+    <button class="mc" onclick="closeOV('ov-task')">ยกเลิก</button>
+  </div>
+</div>
+
+<!-- MODAL: TRAIN -->
+<div class="ov" id="ov-train">
+  <div class="md"><div class="mh"></div>
+    <h3 style="font-size:1rem;font-weight:800;margin-bottom:13px">บันทึกการอบรม</h3>
+    <div class="fr full" style="margin-bottom:8px">
+      <div><div class="fl">ชื่อหลักสูตร</div>
+        <input class="fi" id="tr-crs" placeholder="เช่น การป้องกันและบรรเทาสาธารณภัย" autocomplete="off"></div>
+    </div>
+    <div class="fr" style="margin-bottom:8px">
+      <div><div class="fl">ผู้เข้าอบรม</div><select class="fsl" id="tr-uid"><option value="">— เลือกชื่อ —</option></select></div>
+      <div><div class="fl">วันที่</div><input class="fi" type="date" id="tr-dt"></div>
+    </div>
+    <div class="fr full" style="margin-bottom:10px">
+      <div><div class="fl">ผล / หมายเหตุ</div>
+        <input class="fi" id="tr-note" placeholder="ผ่าน / ไม่ผ่าน / หมายเหตุ" autocomplete="off"></div>
+    </div>
+    <button class="btn b-green" style="width:100%;justify-content:center;padding:11px;margin-bottom:7px" onclick="saveTrain()">💾 บันทึก</button>
+    <button class="mc" onclick="closeOV('ov-train')">ยกเลิก</button>
+  </div>
+</div>
+
+<!-- PIN -->
+<div class="po" id="ov-pin">
+  <div class="px">
+    <h3>🔐 ยืนยัน Admin PIN</h3>
+    <p id="pin-lbl">กรอก PIN 4 หลัก</p>
+    <div class="pds">
+      <div class="pdd" id="pd0"></div><div class="pdd" id="pd1"></div>
+      <div class="pdd" id="pd2"></div><div class="pdd" id="pd3"></div>
+    </div>
+    <div class="pp">
+      <button class="pk" onclick="pk('1')">1</button><button class="pk" onclick="pk('2')">2</button><button class="pk" onclick="pk('3')">3</button>
+      <button class="pk" onclick="pk('4')">4</button><button class="pk" onclick="pk('5')">5</button><button class="pk" onclick="pk('6')">6</button>
+      <button class="pk" onclick="pk('7')">7</button><button class="pk" onclick="pk('8')">8</button><button class="pk" onclick="pk('9')">9</button>
+      <button class="pk del" onclick="pkd()">⌫</button>
+      <button class="pk" onclick="pk('0')">0</button>
+      <button class="pk cncl" onclick="closePIN()">ยกเลิก</button>
+    </div>
+    <p style="font-size:.62rem;color:var(--gray);margin-top:9px">PIN เริ่มต้น: 1234</p>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ════════ CONFIG ════════
+// ข้อมูลฝังสำรอง (offline fallback) — ลบออกได้เมื่อตั้งค่า Google Sheet แล้ว
+const FALLBACK=[];
+// [uid,name,pos,tambon,moo,village,phone,dob,start,end,term]
+let PPL=[];
+let nUID=1;
+const K={CI:'sdps_ci',CFG:'sdps_cfg',URL:'sdps_url',PIN:'sdps_pin',TASKS:'sdps_tsk',TR:'sdps_tr',BC:'sdps_bc',PPL:'sdps_ppl',SYNC:'sdps_sync'};
+let CI={},CFG={date:'',agenda:'',venue:'หอประชุมอำเภอพิมาย'},API_URL='',APIN='1234';
+
+
+let CI={},CFG={date:'',agenda:'',venue:'หอประชุมอำเภอพิมาย'},GS_URL='',APIN='1234';
+
+
+
+function load(){
+  const j=k=>{try{const d=localStorage.getItem(k);return d?JSON.parse(d):null;}catch(e){return null;}};
+  CI=j(K.CI)||{};CFG={...CFG,...(j(K.CFG)||{})};
+  API_URL=localStorage.getItem(K.URL)||'';APIN=localStorage.getItem(K.PIN)||'1234';
+  TASKS=j(K.TASKS)||[];TRAINS=j(K.TR)||[];BCLOG=j(K.BC)||[];
+  const pp=j(K.PPL);if(pp){PPL=pp;nUID=Math.max(...PPL.map(p=>p.uid))+1;}
+}
+const sv=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+const E=id=>document.getElementById(id);
+
+// ════════ UTILS ════════
+const TODAY=new Date();TODAY.setHours(0,0,0,0);
+const pd=s=>{if(!s)return null;const d=new Date(s);return isNaN(d)?null:d;};
+const dl=s=>{const d=pd(s);return d?Math.round((d-TODAY)/86400000):null;};
+function fD(s){const d=pd(s);if(!d)return'—';const y=d.getFullYear()+543,m=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'][d.getMonth()];return`${d.getDate()} ${m} ${y}`;}
+function fDs(s){const d=pd(s);return d?`${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()+543}`:'—';}
+const ini=n=>(n.replace(/^(นาย|นาง|น\.ส\.|นางสาว)\s*/,'')||'?')[0];
+const avC=p=>({'กน.':'vk','ผญบ.':'vj','ผปค.':'vc','ผรส.':'vr','สว.':'vs','แพทย์':'vd'})[p]||'vo';
+const tgC=p=>({'กน.':'tk','ผญบ.':'tj','ผปค.':'tc','ผรส.':'tr','สว.':'ts','แพทย์':'td'})[p]||'to';
+const pL=p=>({'กน.':'กำนัน','ผญบ.':'ผู้ใหญ่บ้าน','ผปค.':'ผู้ช่วยฯ(ปกครอง)','ผรส.':'ผู้ช่วยฯ(รักษาฯ)','สว.':'สารวัตรกำนัน','แพทย์':'แพทย์ประจำตำบล'})[p]||p;
+const uC=d=>d===null?'ck':d<0?'cx':d<=30?'c3':d<=90?'c9':'ck';
+function ttag(d){
+  if(d===null)return{c:'tok',t:'ไม่ระบุ'};
+  if(d<0)return{c:'tx',t:`เกิน ${Math.abs(d)} วัน`};
+  if(d===0)return{c:'tx',t:'ครบวาระวันนี้!'};
+  if(d<=30)return{c:'t3',t:`เหลือ ${d} วัน`};
+  if(d<=90)return{c:'t9',t:`เหลือ ${d} วัน`};
+  if(d<=365)return{c:'tok',t:`เหลือ ${d} วัน`};
+  const yr=Math.floor(d/365),rm=Math.round((d%365)/30);
+  return{c:'tok',t:`เหลือ ${yr}ปี${rm?' '+rm+'เดือน':''}`};
+}
+function calcAge(dob){const d=pd(dob);if(!d)return null;let a=TODAY.getFullYear()-d.getFullYear();if(TODAY.getMonth()<d.getMonth()||(TODAY.getMonth()===d.getMonth()&&TODAY.getDate()<d.getDate()))a--;return a;}
+function toast(msg,tp=''){const t=E('toast');t.textContent=msg;t.className='toast show'+(tp?' '+tp:'');clearTimeout(t._t);t._t=setTimeout(()=>t.className='toast',2800);}
+const closeOV=id=>{E(id).classList.remove('show');selP=null;};
+
+// ════════ CARD ════════
+function card(p,mode='dt'){
+  const d=dl(p.end),uc=uC(d),tag=ttag(d);
+  const moo=p.moo&&p.moo!=='-'?` ม.${p.moo}`:'';
+  const sub=`ต.${p.tambon}${moo} ${p.village||''}`.trim();
+  const fn=mode==='ci'?`openCI(${p.uid})`:`openDT(${p.uid})`;
+  const ci=CI[p.uid];
+  return`<div class="pc ${uc}" onclick="${fn}">
+    <div class="pt">
+      <div class="av ${avC(p.pos)}">${ini(p.name)}</div>
+      <div class="pi">
+        <div class="pn">${p.name}</div>
+        <div class="ps">${sub}</div>
+        <div class="ptg">
+          <span class="tg ${tgC(p.pos)}">${pL(p.pos)}</span>
+          ${p.end?`<span class="tg ${tag.c}">${tag.t}</span>`:''}
+          ${mode==='ci'&&ci?'<span class="tg tok">เช็คอินแล้ว</span>':''}
+        </div>
+        ${p.phone&&p.phone!=='0'?`<a class="pph" href="tel:${p.phone}" onclick="event.stopPropagation()">📞 ${p.phone}</a>`:''}
+      </div>
+      ${mode==='ci'?`<div style="font-size:1.3rem;flex-shrink:0;margin-top:2px">${ci?'✅':'⬜'}</div>`:''}
+    </div>
+  </div>`;
+}
+
+// ════════ DASHBOARD ════════
+function rDash(){
+  let ex=0,d3=0,d9=0,ok=0;
+  PPL.forEach(p=>{const d=dl(p.end);if(d===null||d>365)ok++;else if(d<0)ex++;else if(d<=30)d3++;else if(d<=90)d9++;else ok++;});
+  const urg=ex+d3;
+  E('nc-term').textContent=urg||'0';
+  E('tp-alert').textContent=urg?`🔴 ${urg} เร่งด่วน`:'✅ ไม่มีเร่งด่วน';
+  E('tp-alert').className=urg?'sp sp-red':'sp sp-blue';
+  const cards=[
+    {n:PPL.length,l:'ผู้นำท้องที่ทั้งหมด',c:'#1d4ed8',b:'#1d4ed8',fn:'pb'},
+    {n:ex,l:'หมดวาระแล้ว',c:'#991b1b',b:'#991b1b',fn:'exp'},
+    {n:d3,l:'ครบใน 30 วัน',c:'#c2410c',b:'#c2410c',fn:'30'},
+    {n:d9,l:'ครบใน 90 วัน',c:'#b45309',b:'#b45309',fn:'90'},
+    {n:Object.keys(CI).length,l:'เช็คอินประชุมล่าสุด',c:'#16a34a',b:'#16a34a',fn:'ci'},
+    {n:TASKS.filter(t=>t.status==='pending').length,l:'ภารกิจรอดำเนินการ',c:'#7c3aed',b:'#7c3aed',fn:'ms'},
+  ];
+  E('d-stats').innerHTML=cards.map(s=>`<div class="sc" style="border-left-color:${s.b}" onclick="fgo('${s.fn}')"><div class="sc-n" style="color:${s.c}">${s.n}</div><div class="sc-l">${s.l}</div></div>`).join('');
+  const TBS=[...new Set(PPL.map(p=>p.tambon))].sort();
+  const byT=TBS.map(t=>{const n=PPL.filter(p=>p.tambon===t).length;return{t,n}}).sort((a,b)=>b.n-a.n);
+  const maxT=Math.max(...byT.map(x=>x.n),1);
+  const COLS=['#c0392b','#a93226','#7b2213','#e74c3c','#922b21','#e55039','#cb4335','#b03a2e','#943126','#78281f','#641e16','#c0392b'];
+  const POS=[['กน.','#92400e'],['ผญบ.','#1e40af'],['ผปค.','#6b21a8'],['ผรส.','#9d174d'],['สว.','#065f46'],['แพทย์','#9a3412']];
+  const maxP=Math.max(...POS.map(([p])=>PPL.filter(x=>x.pos===p).length),1);
+  const AG={'<40':0,'40-49':0,'50-59':0,'60+':0,'ไม่ระบุ':0};
+  PPL.forEach(p=>{const a=calcAge(p.dob);if(a===null)AG['ไม่ระบุ']++;else if(a<40)AG['<40']++;else if(a<50)AG['40-49']++;else if(a<60)AG['50-59']++;else AG['60+']++;});
+  const AGC={'<40':'#16a34a','40-49':'#1d4ed8','50-59':'#d4a017','60+':'#c0392b','ไม่ระบุ':'#9ca3af'};
+  E('d-charts').innerHTML=`
+    <div class="cc"><div class="ct">📊 กำลังพลรายตำบล</div>${byT.map((x,i)=>`<div class="br"><div class="bl" title="ต.${x.t}">ต.${x.t}</div><div class="bt"><div class="bf" style="width:${Math.round(x.n/maxT*100)}%;background:${COLS[i%12]}"></div></div><div class="bn">${x.n}</div></div>`).join('')}</div>
+    <div class="cc"><div class="ct">👤 กำลังพลรายตำแหน่ง</div>${POS.map(([p,c])=>{const n=PPL.filter(x=>x.pos===p).length;return`<div class="br"><div class="bl">${pL(p)}</div><div class="bt"><div class="bf" style="width:${Math.round(n/maxP*100)}%;background:${c}"></div></div><div class="bn">${n}</div></div>`;}).join('')}</div>
+    <div class="cc"><div class="ct">🎂 การกระจายอายุ</div>${Object.entries(AG).map(([l,n])=>`<div class="br"><div class="bl">${l} ปี</div><div class="bt"><div class="bf" style="width:${PPL.length?Math.round(n/PPL.length*100):0}%;background:${AGC[l]||'#6b7280'}"></div></div><div class="bn">${n}</div></div>`).join('')}</div>
+    <div class="cc"><div class="ct">⏰ สถานะวาระ</div>
+      ${[['หมดวาระ',ex,'#991b1b'],['ใน 30 วัน',d3,'#c2410c'],['ใน 90 วัน',d9,'#b45309'],['วาระดี',ok,'#16a34a']].map(([l,n,c])=>`<div class="br"><div class="bl">${l}</div><div class="bt"><div class="bf" style="width:${PPL.length?Math.round(n/PPL.length*100):0}%;background:${c}"></div></div><div class="bn">${n}</div></div>`).join('')}</div>`;
+  const ul=PPL.filter(p=>{const d=dl(p.end);return d!==null&&d<=90;}).sort((a,b)=>(dl(a.end)||9999)-(dl(b.end)||9999));
+  E('d-urgent').innerHTML=ul.length?ul.map(p=>card(p)).join(''):'<div class="empty"><div class="ei">✅</div><div class="et">ไม่มีรายการเร่งด่วน</div></div>';
+}
+
+// ════════ PHONEBOOK ════════
+function rPB(){
+  const q=(E('pb-q').value||'').trim().toLowerCase(),t=E('pb-tb').value,pos=E('pb-pos').value;
+  let L=PPL;
+  if(t)L=L.filter(p=>p.tambon===t);
+  if(pos)L=L.filter(p=>p.pos===pos);
+  if(q)L=L.filter(p=>p.name.toLowerCase().includes(q)||(p.village||'').toLowerCase().includes(q)||(p.phone||'').includes(q));
+  L.sort((a,b)=>a.tambon.localeCompare(b.tambon,'th')||a.moo-b.moo);
+  E('pb-body').innerHTML=L.map((p,i)=>`<tr class="${i%2?'':'ro'}" onclick="openDT(${p.uid})" style="cursor:pointer">
+    <td class="tc2">${i+1}</td><td><strong>${p.name}</strong></td>
+    <td><span class="tg ${tgC(p.pos)}">${pL(p.pos)}</span></td>
+    <td>ต.${p.tambon}</td><td class="tc2">${p.moo!=='-'?p.moo:'—'}</td>
+    <td>${p.village||'—'}</td>
+    <td><a href="tel:${p.phone}" onclick="event.stopPropagation()" style="color:var(--blue);font-weight:600">${p.phone||'—'}</a></td>
+    <td><button class="btn b-gray b-sm" onclick="event.stopPropagation();openDT(${p.uid})">ดู</button></td>
+  </tr>`).join('');
+  E('pb-cnt').textContent=`แสดง ${L.length} / ${PPL.length} รายการ`;
+}
+
+// ════════ TERM ALERT ════════
+function rTA(){
+  const r=E('ta-r').value,t=E('ta-tb').value;
+  let L=PPL.filter(p=>{const d=dl(p.end);
+    if(r==='exp')return d!==null&&d<0;if(r==='30')return d!==null&&d>=0&&d<=30;
+    if(r==='90')return d!==null&&d>30&&d<=90;if(r==='180')return d!==null&&d>90&&d<=180;
+    if(r==='365')return d!==null&&d>180&&d<=365;return d!==null&&d<=365;});
+  if(t)L=L.filter(p=>p.tambon===t);
+  L.sort((a,b)=>(dl(a.end)||9999)-(dl(b.end)||9999));
+  let ex=0,d3=0,d9=0,d18=0;
+  PPL.forEach(p=>{const d=dl(p.end);if(d!==null){if(d<0)ex++;else if(d<=30)d3++;else if(d<=90)d9++;else if(d<=180)d18++;}});
+  E('ta-stats').innerHTML=[
+    {n:ex,l:'หมดวาระแล้ว',c:'#991b1b',b:'#991b1b'},
+    {n:d3,l:'ครบใน 30 วัน',c:'#c2410c',b:'#c2410c'},
+    {n:d9,l:'ครบใน 90 วัน',c:'#b45309',b:'#b45309'},
+    {n:d18,l:'ครบใน 180 วัน',c:'#1d4ed8',b:'#1d4ed8'},
+  ].map(s=>`<div class="sc" style="border-left-color:${s.b}"><div class="sc-n" style="color:${s.c}">${s.n}</div><div class="sc-l">${s.l}</div></div>`).join('');
+  E('ta-list').innerHTML=L.length?L.map(p=>card(p)).join(''):'<div class="empty"><div class="ei">🎉</div><div class="et">ไม่มีรายการ</div></div>';
+}
+
+// ════════ CHECKIN ════════
+function rCI(){
+  const q=(E('ci-q').value||'').trim().toLowerCase(),t=E('ci-tb').value,st=E('ci-st').value;
+  let L=PPL;
+  if(t)L=L.filter(p=>p.tambon===t);
+  if(st==='in')L=L.filter(p=>CI[p.uid]);
+  else if(st==='out')L=L.filter(p=>!CI[p.uid]);
+  if(q)L=L.filter(p=>p.name.toLowerCase().includes(q)||pL(p.pos).includes(q));
+  const n=Object.keys(CI).length,tot=PPL.length;
+  E('ci-stats').innerHTML=[
+    {n:tot,l:'ผู้มีสิทธิ์ทั้งหมด',c:'#1d4ed8',b:'#1d4ed8'},
+    {n,l:'เช็คอินแล้ว',c:'#16a34a',b:'#16a34a'},
+    {n:tot-n,l:'ยังไม่มา',c:'#c0392b',b:'#c0392b'},
+    {n:tot?Math.round(n/tot*100):0,l:'% เข้าร่วม',c:'#d4a017',b:'#d4a017',sx:'%'},
+  ].map(s=>`<div class="sc" style="border-left-color:${s.b}"><div class="sc-n" style="color:${s.c}">${s.n}${s.sx||''}</div><div class="sc-l">${s.l}</div></div>`).join('');
+  E('ci-list').innerHTML=L.length?L.map(p=>card(p,'ci')).join(''):'<div class="empty"><div class="ei">🔍</div><div class="et">ไม่พบรายชื่อ</div></div>';
+  if(CFG.date||CFG.agenda){const d=CFG.date?new Date(CFG.date).toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'}):'';E('mtg-banner').textContent=`📅 ${d}${CFG.agenda?' | '+CFG.agenda:''}${CFG.venue?' | '+CFG.venue:''}`;}
+}
+function openCI(uid){
+  const p=PPL.find(x=>x.uid===uid);if(!p)return;selP=p;
+  const ci=CI[uid];
+  E('ci-av').className=`mav ${avC(p.pos)}`;E('ci-av').textContent=ini(p.name);
+  E('ci-nm').textContent=p.name;E('ci-ps').innerHTML=`<span class="tg ${tgC(p.pos)}">${pL(p.pos)}</span>`;
+  E('ci-tb').textContent='ต.'+p.tambon;
+  E('ci-mo').textContent=(p.moo&&p.moo!=='-'?'หมู่ '+p.moo+' ':'')+（p.village||'—');
+  E('ci-ph').textContent=p.phone||'—';
+  if(p.phone&&p.phone!=='0'){E('ci-cl').href='tel:'+p.phone;E('ci-cl').style.display='block';}else E('ci-cl').style.display='none';
+  E('ci-btn').style.display=ci?'none':'block';E('ci-undo').style.display=ci?'block':'none';
+  E('ci-ab').innerHTML=ci?`<div class="ab ay">✅ เช็คอินแล้วเมื่อ ${new Date(ci).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})}</div>`:'';
+  E('ov-ci').classList.add('show');
+}
+function doCI(){if(!selP)return;CI[selP.uid]=Date.now();sv(K.CI,CI);rCI();rDash();closeOV('ov-ci');toast('✅ เช็คอิน: '+selP.name);}
+function undoCI(){if(!selP)return;delete CI[selP.uid];sv(K.CI,CI);rCI();rDash();closeOV('ov-ci');toast('↩️ ยกเลิก: '+selP.name,'warn');}
+function doReset(){openPIN('reset',()=>{if(!confirm('รีเซ็ตข้อมูลเช็คอิน '+Object.keys(CI).length+' รายการ?\nExport Excel ก่อนได้เลย'))return;CI={};sv(K.CI,CI);rCI();rDash();toast('🔄 รีเซ็ตแล้ว');});}
+
+// ════════ DETAIL MODAL ════════
+function openDT(uid){
+  const p=PPL.find(x=>x.uid===uid);if(!p)return;selP=p;
+  const days=dl(p.end);
+  E('dt-av').className=`mav ${avC(p.pos)}`;E('dt-av').textContent=ini(p.name);
+  E('dt-nm').textContent=p.name;E('dt-ps').innerHTML=`<span class="tg ${tgC(p.pos)}">${pL(p.pos)}</span>`;
+  E('dt-tb').textContent='ต.'+p.tambon;
+  E('dt-mo').textContent=(p.moo&&p.moo!=='-'?'หมู่ '+p.moo+' ':'')+（p.village||'—');
+  E('dt-ph').textContent=p.phone||'—';
+  E('dt-dob').textContent=fD(p.dob);
+  const a=calcAge(p.dob);E('dt-age').textContent=a!==null?a+' ปี':'—';
+  E('dt-term').textContent=p.term||'—';E('dt-st').textContent=fD(p.start);E('dt-end').textContent=fD(p.end);
+  const tag=ttag(days);E('dt-left').innerHTML=`<span class="tg ${tag.c}">${tag.t}</span>`;
+  if(p.start&&p.end){const sd=pd(p.start),ed=pd(p.end);if(sd&&ed){const pct=Math.min(100,Math.max(0,Math.round((TODAY-sd)/(ed-sd)*100)));const bc=days!==null&&days<0?'#991b1b':days!==null&&days<=90?'#c2410c':'#16a34a';E('pb-f').style.cssText=`width:${pct}%;background:${bc}`;E('pb-pct').textContent=`ดำรงตำแหน่งมาแล้ว ${pct}% ของวาระ`;E('pb-s').textContent=fDs(p.start);E('pb-e').textContent=fDs(p.end);}}
+  else{E('pb-f').style.width='0%';E('pb-pct').textContent='';}
+  let ab='';
+  if(days!==null&&days<0)ab=`<div class="ab ax">🔴 <div><strong>หมดวาระแล้ว ${Math.abs(days)} วัน</strong><br>ต้องดำเนินการแต่งตั้งหรือเลือกตั้งแทน</div></div>`;
+  else if(days!==null&&days<=30)ab=`<div class="ab ao">🟠 <div><strong>ครบวาระในอีก ${days} วัน</strong><br>ควรเตรียมการด่วน</div></div>`;
+  else if(days!==null&&days<=90)ab=`<div class="ab ay">🟡 <div><strong>ครบวาระในอีก ${days} วัน</strong><br>ควรเริ่มเตรียมการ</div></div>`;
+  E('dt-ab').innerHTML=ab;
+  if(p.phone&&p.phone!=='0'){E('dt-cl').href='tel:'+p.phone;E('dt-cl').style.display='block';}else E('dt-cl').style.display='none';
+  E('ov-dt').classList.add('show');
+}
+
+// ════════ MISSION ════════
+function rMS(){
+  const st=E('ms-st').value,t=E('ms-tb').value;
+  const today=new Date().toISOString().slice(0,10);
+  let L=[...TASKS].reverse();
+  L.forEach(tk=>{if(tk.status!=='done'&&tk.due&&tk.due<today)tk.status='overdue';});
+  if(st)L=L.filter(tk=>tk.status===st);
+  if(t)L=L.filter(tk=>tk.target===t||tk.target==='all');
+  E('nc-ms').textContent=TASKS.filter(t=>t.status==='pending').length;
+  const dots={pending:'#ea580c',done:'#16a34a',overdue:'#c0392b'};
+  E('ms-list').innerHTML=L.length?L.map(tk=>`<div class="tkc s${tk.status[0]}">
+    <div class="tkd" style="background:${dots[tk.status]}"></div>
+    <div style="flex:1;min-width:0">
+      <div style="font-size:.84rem;font-weight:700">${tk.title}</div>
+      <div style="font-size:.68rem;color:var(--gray);margin-top:2px">📍 ${tk.target==='all'?'ทุกคน':'ต.'+tk.target} | กำหนด: ${tk.due?fD(tk.due):'ไม่กำหนด'} | ${tk.desc||''}</div>
+    </div>
+    <div style="display:flex;gap:4px;flex-shrink:0">
+      ${tk.status!=='done'?`<button class="btn b-green b-sm" onclick="mkT('${tk.id}','done')">✅</button>`:`<button class="btn b-gray b-sm" onclick="mkT('${tk.id}','pending')">↩️</button>`}
+      <button class="btn b-gray b-sm" onclick="edT('${tk.id}')">✏️</button>
+      <button class="btn b-gray b-sm" style="color:#c0392b" onclick="delT('${tk.id}')">🗑️</button>
+    </div>
+  </div>`).join(''):'<div class="empty"><div class="ei">📋</div><div class="et">ไม่มีภารกิจ</div></div>';
+}
+function openTask(){E('te-id').value='';E('t-ttl').value='';E('t-tgt').value='all';E('t-due').value='';E('t-desc').value='';E('tm-ttl').textContent='มอบหมายภารกิจ';E('ov-task').classList.add('show');}
+function saveTask(){
+  const title=E('t-ttl').value.trim();if(!title){toast('กรุณากรอกชื่อภารกิจ','err');return;}
+  const id=E('te-id').value;
+  const tk={id:id||Date.now().toString(),title,target:E('t-tgt').value,due:E('t-due').value,desc:E('t-desc').value.trim(),status:'pending',created:new Date().toISOString()};
+  if(id){const i=TASKS.findIndex(t=>t.id===id);if(i!==-1)TASKS[i]=tk;}else TASKS.push(tk);
+  sv(K.TASKS,TASKS);rMS();rDash();closeOV('ov-task');toast('💾 บันทึกภารกิจแล้ว');
+}
+function mkT(id,s){const t=TASKS.find(x=>x.id===id);if(t){t.status=s;sv(K.TASKS,TASKS);rMS();rDash();}}
+function edT(id){const t=TASKS.find(x=>x.id===id);if(!t)return;E('te-id').value=id;E('t-ttl').value=t.title;E('t-tgt').value=t.target;E('t-due').value=t.due||'';E('t-desc').value=t.desc||'';E('tm-ttl').textContent='แก้ไขภารกิจ';E('ov-task').classList.add('show');}
+function delT(id){if(!confirm('ลบภารกิจนี้?'))return;TASKS=TASKS.filter(t=>t.id!==id);sv(K.TASKS,TASKS);rMS();rDash();toast('🗑️ ลบแล้ว');}
+
+// ════════ BROADCAST ════════
+function updRC(){
+  const g=E('bc-g').value,sw=E('bc-sub-w');
+  let cnt=0,desc='';
+  if(g==='all'){cnt=PPL.length;desc='ทุกคน';sw.style.display='none';}
+  else if(g==='tb'){const sel=E('bc-sub').value;cnt=sel?PPL.filter(p=>p.tambon===sel).length:0;desc=sel?'ต.'+sel:'(เลือกตำบล)';sw.style.display='block';}
+  else{cnt=PPL.filter(p=>p.pos===g).length;desc=pL(g);sw.style.display='none';}
+  E('rc-box').textContent='📬 ผู้รับ: '+desc+' — '+cnt+' คน';
+}
+function bcTmpl(t){
+  const T={meet:'แจ้งกำหนดการประชุมประจำเดือน\n\nเรียน กำนัน ผู้ใหญ่บ้าน และผู้ช่วยผู้ใหญ่บ้านทุกท่าน\n\nขอเชิญเข้าร่วมประชุมประจำเดือน\nวันที่ ......... เวลา ......... น.\nณ หอประชุมอำเภอพิมาย',
+    urg:'🚨 ข้อความเร่งด่วน\n\nแจ้งให้ดำเนินการโดยด่วน\nรายละเอียด: .............\nกำหนดรายงานผล: .........',
+    info:'แจ้งข้อมูลทั่วไป\n\nเรียน ผู้นำท้องที่ทุกท่าน\n\nขอแจ้งให้ทราบว่า .............\n\nจึงเรียนมาเพื่อทราบและดำเนินการ'};
+  E('bc-msg').value=T[t]||'';
+}
+function sendBC(){
+  const subj=E('bc-subj').value.trim(),msg=E('bc-msg').value.trim();
+  if(!subj||!msg){toast('กรุณากรอกหัวข้อและข้อความ','err');return;}
+  BCLOG.unshift({id:Date.now().toString(),subject:subj,msg,recipients:E('rc-box').textContent,time:new Date().toLocaleString('th-TH')});
+  sv(K.BC,BCLOG);E('bc-subj').value='';E('bc-msg').value='';rBCLog();toast('📤 บันทึก Broadcast แล้ว');
+}
+function rBCLog(){
+  E('bc-log').innerHTML=BCLOG.length?BCLOG.map(b=>`<div style="background:#fff;border-radius:10px;padding:9px 12px;margin-bottom:6px;box-shadow:0 1px 3px rgba(0,0,0,.05);display:flex;gap:9px">
+    <div style="font-size:1.3rem;flex-shrink:0">📢</div>
+    <div style="flex:1;min-width:0">
+      <div style="font-size:.82rem;font-weight:700">${b.subject}</div>
+      <div style="font-size:.68rem;color:var(--gray);margin-top:2px">${b.recipients} | ${b.time}</div>
+      <div style="font-size:.72rem;margin-top:4px;white-space:pre-wrap;max-height:3em;overflow:hidden">${b.msg}</div>
+    </div>
+  </div>`).join(''):'<div class="empty"><div class="ei">📢</div><div class="et">ยังไม่มีประวัติ</div></div>';
+}
+
+// ════════ MAP ════════
+const TCOORDS={'กระชอน':{lat:15.22,lng:102.47},'กระเบื้องใหญ่':{lat:15.29,lng:102.55},'ชีวาน':{lat:15.24,lng:102.58},'ดงใหญ่':{lat:15.21,lng:102.55},'ท่าหลวง':{lat:15.17,lng:102.53},'ธารละหลอด':{lat:15.12,lng:102.54},'นิคมสร้างตนเอง':{lat:15.15,lng:102.60},'รังกาใหญ่':{lat:15.09,lng:102.49},'สัมฤทธิ์':{lat:15.25,lng:102.43},'หนองระเวียง':{lat:15.18,lng:102.42},'โบสถ์':{lat:15.11,lng:102.46},'ในเมือง':{lat:15.18,lng:102.50}};
+let mapMode='list';
+function mapToggle(){mapMode=mapMode==='list'?'map':'list';rMap();}
+function rMap(){
+  const t=E('mp-tb').value,pos=E('mp-pos').value;
+  let L=PPL;if(t)L=L.filter(p=>p.tambon===t);if(pos)L=L.filter(p=>p.pos===pos);
+  if(mapMode==='map'&&window.google&&window.google.maps){
+    E('map-wrap').innerHTML='<div id="gmap" style="width:100%;height:460px;border-radius:13px;overflow:hidden;box-shadow:0 1px 5px rgba(0,0,0,.07)"></div>';
+    const gmap=new google.maps.Map(E('gmap'),{center:{lat:15.178,lng:102.499},zoom:11});
+    L.forEach(p=>{const c=TCOORDS[p.tambon];if(!c)return;const d=dl(p.end);const col=d!==null&&d<0?'red':d!==null&&d<=90?'orange':'blue';const jit={lat:c.lat+(Math.random()-.5)*.018,lng:c.lng+(Math.random()-.5)*.018};const m=new google.maps.Marker({position:jit,map:gmap,title:p.name,icon:`http://maps.google.com/mapfiles/ms/icons/${col}-dot.png`});m.addListener('click',()=>openDT(p.uid));});
+  }else{
+    if(mapMode==='map')E('map-wrap').innerHTML='<div style="background:#fff;border-radius:13px;padding:40px 20px;text-align:center;color:var(--gray);box-shadow:0 1px 5px rgba(0,0,0,.07)"><div style="font-size:2.5rem;margin-bottom:10px">🗺️</div><div style="font-size:.85rem;font-weight:700;margin-bottom:5px">ต้องการ Google Maps API Key</div><div style="font-size:.72rem">กด "สลับมุมมอง" เพื่อดูรายชื่อแทน</div></div>';
+    else{const byT={};L.forEach(p=>{if(!byT[p.tambon])byT[p.tambon]=[];byT[p.tambon].push(p);});E('map-wrap').innerHTML=Object.keys(byT).sort().map(tb=>`<div style="margin-bottom:12px"><div style="display:inline-block;font-size:.8rem;font-weight:800;color:var(--red);padding:3px 12px;background:var(--rl);border-radius:7px;margin-bottom:7px">📍 ต.${tb} — ${byT[tb].length} คน</div><div class="pg">${byT[tb].map(p=>card(p)).join('')}</div></div>`).join('');}
+  }
+}
+
+// ════════ TRAINING ════════
+function rTR(){
+  const q=(E('tr-q').value||'').trim().toLowerCase(),t=E('tr-tb').value;
+  let L=[...TRAINS].reverse();
+  if(q)L=L.filter(x=>{const p=PPL.find(pp=>pp.uid===x.uid);return(p&&p.name.toLowerCase().includes(q))||x.course.toLowerCase().includes(q);});
+  if(t)L=L.filter(x=>{const p=PPL.find(pp=>pp.uid===x.uid);return p&&p.tambon===t;});
+  E('tr-list').innerHTML=L.length?`<div class="tw"><table><thead><tr><th>#</th><th>ชื่อ-สกุล</th><th>ตำแหน่ง</th><th>ตำบล</th><th>หลักสูตร</th><th>วันที่</th><th>ผล</th><th></th></tr></thead><tbody>
+    ${L.map((x,i)=>{const p=PPL.find(pp=>pp.uid===x.uid)||{name:'—',pos:'',tambon:'—'};return`<tr class="${i%2?'':'ro'}"><td class="tc2">${i+1}</td><td><strong>${p.name}</strong></td><td><span class="tg ${tgC(p.pos)}">${pL(p.pos)}</span></td><td>ต.${p.tambon}</td><td>${x.course}</td><td>${x.date?fD(x.date):'—'}</td><td>${x.note||'—'}</td><td><button class="btn b-gray b-sm" style="color:#c0392b" onclick="delTR('${x.id}')">🗑️</button></td></tr>`;}).join('')}</tbody></table></div>`
+    :'<div class="empty"><div class="ei">🎓</div><div class="et">ยังไม่มีข้อมูลอบรม</div></div>';
+}
+function openTrain(){
+  E('tr-crs').value='';E('tr-dt').value='';E('tr-note').value='';
+  E('tr-uid').innerHTML='<option value="">— เลือกชื่อ —</option>'+[...PPL].sort((a,b)=>a.tambon.localeCompare(b.tambon,'th')).map(p=>`<option value="${p.uid}">ต.${p.tambon} ม.${p.moo} — ${p.name}</option>`).join('');
+  E('ov-train').classList.add('show');
+}
+function saveTrain(){
+  const uid=parseInt(E('tr-uid').value),course=E('tr-crs').value.trim();
+  if(!uid||!course){toast('กรุณาเลือกชื่อและกรอกหลักสูตร','err');return;}
+  TRAINS.push({id:Date.now().toString(),uid,course,date:E('tr-dt').value,note:E('tr-note').value.trim()});
+  sv(K.TR,TRAINS);rTR();closeOV('ov-train');toast('💾 บันทึกการอบรมแล้ว');
+}
+function delTR(id){if(!confirm('ลบรายการนี้?'))return;TRAINS=TRAINS.filter(t=>t.id!==id);sv(K.TR,TRAINS);rTR();toast('🗑️ ลบแล้ว');}
+
+// ════════ ADMIN ════════
+function rAD(){
+  const q=(E('ad-q').value||'').trim().toLowerCase();
+  let L=PPL;if(q)L=L.filter(p=>p.name.toLowerCase().includes(q)||p.tambon.includes(q));
+  E('ad-tot').textContent=PPL.length;
+  E('ad-body').innerHTML=L.slice(0,100).map((p,i)=>{const d=dl(p.end);const tag=ttag(d);return`<tr class="${i%2?'':'ro'}"><td class="tc2">${i+1}</td><td><strong>${p.name}</strong></td><td><span class="tg ${tgC(p.pos)}">${pL(p.pos)}</span></td><td>ต.${p.tambon}</td><td class="tc2">${p.moo!=='-'?p.moo:'—'}</td><td><span class="tg ${tag.c}">${tag.t}</span></td><td style="display:flex;gap:4px"><button class="btn b-gray b-sm" onclick="edPer(${p.uid})">✏️</button><button class="btn b-gray b-sm" style="color:#c0392b" onclick="delPer(${p.uid})">🗑️</button></td></tr>`;}).join('')+(L.length>100?`<tr><td colspan="7" style="text-align:center;padding:10px;font-size:.72rem;color:var(--gray)">แสดง 100/${L.length} รายการ — ค้นหาเพื่อกรอง</td></tr>`:'');
+}
+async function savePer(){
+  const name=E('fp-n').value.trim(),pos=E('fp-pos').value,tambon=E('fp-tb').value;
+  if(!name||!pos||!tambon){toast('กรุณากรอกชื่อ ตำแหน่ง ตำบล','err');return;}
+  if(!API_URL){toast('กรุณาตั้งค่า API URL ก่อน','warn');return;}
+  const uid=E('eu').value;
+  const data={name,pos,tambon,moo:E('fp-m').value||'-',village:E('fp-v').value.trim(),
+    phone:E('fp-ph').value.trim(),dob:'',start:E('fp-s').value,end:E('fp-e').value,term:'',note:''};
+  const btn=E('sp-btn');if(btn){btn.disabled=true;btn.textContent='⏳ กำลังบันทึก...';}
+  try{
+    const body=uid?{action:'update',uid:parseInt(uid),data}:{action:'add',data};
+    const r=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const d=await r.json();
+    if(!d.ok)throw new Error(d.error);
+    toast(d.msg);cxEdit();
+    await syncNow();
+  }catch(e){toast('❌ '+e.message,'err');}
+  if(btn){btn.disabled=false;btn.textContent='➕ บันทึกลง Google Sheet';}
+}
+function edPer(uid){
+  const p=PPL.find(x=>x.uid===uid);if(!p)return;
+  E('eu').value=uid;E('fp-n').value=p.name;E('fp-pos').value=p.pos;E('fp-tb').value=p.tambon;E('fp-m').value=p.moo!=='-'?p.moo:'';E('fp-v').value=p.village||'';E('fp-ph').value=p.phone||'';E('fp-s').value=p.start||'';E('fp-e').value=p.end||'';
+  E('ap-title').textContent='✏️ แก้ไขข้อมูล';E('sp-btn').textContent='💾 บันทึกการแก้ไข';E('cx-btn').style.display='block';
+}
+function cxEdit(){E('eu').value='';['fp-n','fp-m','fp-v','fp-ph','fp-s','fp-e'].forEach(id=>E(id).value='');E('fp-pos').value='';E('fp-tb').value='';E('ap-title').textContent='👤 เพิ่มเจ้าหน้าที่';E('sp-btn').textContent='➕ เพิ่มเจ้าหน้าที่';E('cx-btn').style.display='none';}
+async function delPer(uid){
+  const p=PPL.find(x=>x.uid==uid);if(!p)return;
+  openPIN('delete',async()=>{
+    if(!confirm('ลบ "'+p.name+'" จาก Google Sheet?\nไม่สามารถกู้คืนได้'))return;
+    if(!API_URL){toast('กรุณาตั้งค่า API URL ก่อน','warn');return;}
+    try{
+      const r=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'delete',uid:parseInt(uid)})});
+      const d=await r.json();
+      if(!d.ok)throw new Error(d.error);
+      delete CI[uid];sv(K.CI,CI);
+      toast(d.msg);await syncNow();
+    }catch(e){toast('❌ '+e.message,'err');}
+  });
+}
+async function doSetup(){
+  const url=E('setup-url').value.trim();
+  if(!url){E('setup-err').style.display='block';E('setup-err').textContent='กรุณากรอก URL';return;}
+  E('setup-err').style.display='none';
+  try{
+    const d=await fetch(url+'?action=ping',{cache:'no-cache'}).then(r=>r.json());
+    if(!d.ok)throw new Error(d.error||'ไม่สามารถเชื่อมต่อได้');
+    API_URL=url;try{localStorage.setItem(K.URL,url);}catch(e){}
+    E('setup-screen').style.display='none';
+    activate('dash');toast('✅ เชื่อมต่อสำเร็จ! กำลัง Sync...');
+    await syncNow();
+  }catch(e){
+    E('setup-err').style.display='block';
+    E('setup-err').textContent='❌ เชื่อมต่อไม่ได้: '+e.message;
+  }
+}
+function saveCFG(){CFG.date=E('cfg-dt').value;CFG.agenda=E('cfg-ag').value.trim();CFG.venue=E('cfg-ve').value.trim()||'หอประชุมอำเภอพิมาย';sv(K.CFG,CFG);toast('💾 บันทึกแล้ว');rCI();}
+function saveGS(){saveURL();}
+function saveURL(){
+  const url=E('gs-url')?E('gs-url').value.trim():(E('adm-url')?E('adm-url').value.trim():'');
+  if(!url){toast('กรุณากรอก URL','err');return;}
+  API_URL=url;try{localStorage.setItem(K.URL,url);}catch(e){}
+  toast('💾 บันทึก URL แล้ว');syncNow();
+}
+async function syncGS(){await syncNow();}
+async function syncNow(){
+  if(!API_URL){showSetupAlert();return;}
+  if(window._syncing)return;window._syncing=true;
+  setSyncBar('loading','⏳ กำลัง Sync จาก Google Sheet...');
+  const btn=E('sync-top-btn');if(btn)btn.textContent='⏳';
+  try{
+    const r=await fetch(API_URL+'?action=list',{cache:'no-cache'});
+    const d=await r.json();
+    if(!d.ok)throw new Error(d.error);
+    PPL=d.people;
+    nUID=Math.max(...PPL.map(p=>parseInt(p.uid)||0),0)+1;
+    sv(K.PPL,PPL);
+    const ts=new Date().toLocaleString('th-TH');
+    try{localStorage.setItem(K.SYNC,ts);}catch(e){}
+    setSyncBar('ok','✅ Sync สำเร็จ — '+PPL.length+' คน | อัพเดตล่าสุด '+ts);
+    E('tp-tot').textContent=PPL.length+' คน';
+    if(E('sync-st'))E('sync-st').textContent='✅ Sync '+PPL.length+' คน เมื่อ '+ts;
+    toast('✅ Sync สำเร็จ '+PPL.length+' คน');
+    rAll();
+  }catch(e){
+    setSyncBar('err','❌ Sync ล้มเหลว: '+e.message);
+    if(E('sync-st'))E('sync-st').textContent='❌ '+e.message;
+    toast('❌ Sync ล้มเหลว','err');
+  }
+  if(btn)btn.textContent='🔄';
+  window._syncing=false;
+}
+function setSyncBar(type,msg){
+  const el=E('sync-bar');if(!el)return;
+  const cls={idle:'sync-idle',loading:'sync-loading',ok:'sync-ok',err:'sync-err'};
+  el.className='sync-bar '+(cls[type]||'sync-idle');
+  const tx=E('sync-txt');if(tx)tx.textContent=msg;
+}
+function showSetupAlert(){toast('⚙️ กรุณาตั้งค่า API URL ที่หน้าจัดการก่อน','warn');}
+function chPIN(){const o=E('old-pin').value.trim(),n=E('new-pin').value.trim();if(o!==APIN){toast('PIN เดิมไม่ถูกต้อง','err');return;}if(n.length<4){toast('PIN ต้องมีอย่างน้อย 4 หลัก','err');return;}APIN=n;try{localStorage.setItem(K.PIN,n);}catch(e){}E('old-pin').value='';E('new-pin').value='';toast('✅ เปลี่ยน PIN แล้ว');}
+
+// ════════ PIN ════════
+function openPIN(mode,cb){pinBuf='';pinCB=cb;updPD();E('pin-lbl').textContent='กรอก PIN — '+{reset:'รีเซ็ตข้อมูล',delete:'ลบเจ้าหน้าที่',admin:'เข้า Admin'}[mode];E('ov-pin').classList.add('show');}
+function closePIN(){E('ov-pin').classList.remove('show');pinBuf='';}
+function pk(k){if(pinBuf.length>=6)return;pinBuf+=k;updPD();if(pinBuf.length>=4)setTimeout(checkPIN,120);}
+function pkd(){pinBuf=pinBuf.slice(0,-1);updPD();}
+function updPD(){for(let i=0;i<4;i++)E('pd'+i).className='pdd'+(i<pinBuf.length?' on':'');}
+function checkPIN(){if(pinBuf===APIN){closePIN();if(pinCB)pinCB();}else{toast('❌ PIN ไม่ถูกต้อง','err');pinBuf='';updPD();}}
+
+// ════════ EXPORT EXCEL ════════
+let XLIB=null;
+async function getXLSX(){if(XLIB)return XLIB;return new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';s.onload=()=>{XLIB=window.XLSX;res(window.XLSX)};s.onerror=rej;document.head.appendChild(s);});}
+async function xls(type){
+  toast('⏳ กำลังสร้าง Excel...');
+  try{
+    const X=await getXLSX(),wb=X.utils.book_new(),dt=new Date().toLocaleDateString('th-TH').replace(/\//g,'-');
+    if(type==='pb'||type==='urg'){
+      const L=type==='urg'?PPL.filter(p=>{const d=dl(p.end);return d!==null&&d<=90;}).sort((a,b)=>(dl(a.end)||9999)-(dl(b.end)||9999)):PPL;
+      const rows=[['#','ชื่อ-สกุล','ตำแหน่ง','ตำบล','หมู่ที่','ชื่อหมู่บ้าน','โทรศัพท์','วันครบวาระ','วันเหลือ']];
+      L.forEach((p,i)=>{const d=dl(p.end);rows.push([i+1,p.name,pL(p.pos),p.tambon,p.moo,p.village||'',p.phone||'',fD(p.end),d!==null?d:'—']);});
+      const ws=X.utils.aoa_to_sheet(rows);ws['!cols']=[{wch:5},{wch:24},{wch:20},{wch:14},{wch:6},{wch:18},{wch:14},{wch:16},{wch:8}];
+      X.utils.book_append_sheet(wb,ws,type==='urg'?'เร่งด่วน':'สมุดโทรศัพท์');
+    }else if(type==='term'){
+      [['หมดวาระแล้ว',d=>d!==null&&d<0],['ครบ30วัน',d=>d!==null&&d>=0&&d<=30],['ครบ90วัน',d=>d!==null&&d>30&&d<=90],['ครบ180วัน',d=>d!==null&&d>90&&d<=180]].forEach(([nm,fn])=>{
+        const L=PPL.filter(p=>fn(dl(p.end))).sort((a,b)=>(dl(a.end)||9999)-(dl(b.end)||9999));
+        if(!L.length)return;
+        const rows=[['#','ชื่อ-สกุล','ตำแหน่ง','ตำบล','หมู่','โทรศัพท์','วันครบวาระ','วันเหลือ']];
+        L.forEach((p,i)=>{const d=dl(p.end);rows.push([i+1,p.name,pL(p.pos),p.tambon,p.moo,p.phone||'',fD(p.end),d]);});
+        X.utils.book_append_sheet(wb,X.utils.aoa_to_sheet(rows),nm);
+      });
+    }else if(type==='ci'){
+      const rows=[['#','ชื่อ-สกุล','ตำแหน่ง','ตำบล','หมู่','หมู่บ้าน','โทรศัพท์','สถานะ','เวลา']];
+      PPL.forEach((p,i)=>{const ci=CI[p.uid];rows.push([i+1,p.name,pL(p.pos),p.tambon,p.moo,p.village||'',p.phone||'',ci?'เช็คอิน':'ขาด',ci?new Date(ci).toLocaleTimeString('th-TH'):'']);});
+      X.utils.book_append_sheet(wb,X.utils.aoa_to_sheet(rows),'เช็คอิน');
+    }else if(type==='train'){
+      const rows=[['#','ชื่อ-สกุล','ตำแหน่ง','ตำบล','หลักสูตร','วันที่','ผล']];
+      TRAINS.forEach((x,i)=>{const p=PPL.find(pp=>pp.uid===x.uid)||{name:'—',pos:'',tambon:'—'};rows.push([i+1,p.name,pL(p.pos),p.tambon,x.course,x.date?fD(x.date):'',x.note||'']);});
+      X.utils.book_append_sheet(wb,X.utils.aoa_to_sheet(rows),'ทะเบียนอบรม');
+    }
+    if(wb.SheetNames.length===0){toast('ไม่มีข้อมูลสำหรับ Export','warn');return;}
+    X.writeFile(wb,`SDPS_${type}_${dt}.xlsx`);
+    toast('📥 ดาวน์โหลด Excel แล้ว');
+  }catch(e){toast('❌ '+e.message,'err');}
+}
+
+// ════════ NAVIGATION ════════
+const PAGE_TITLES={dash:'Dashboard ภาพรวม',pb:'📞 สมุดโทรศัพท์ดิจิทัล',term:'⏰ ระบบแจ้งเตือนครบวาระ',ci:'✅ เช็คอินประชุม',ms:'📋 ติดตามภารกิจ',bc:'📢 Broadcast',map:'🗺️ แผนที่กำลังพล',train:'🎓 ทะเบียนการอบรม',adm:'⚙️ จัดการข้อมูล'};
+function go(page){
+  if(page==='adm'&&!E('v-adm').classList.contains('active')){openPIN('admin',()=>activate(page));sbClose();return;}
+  activate(page);sbClose();
+}
+function activate(page){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nbtn').forEach(b=>b.classList.remove('active'));
+  E('v-'+page).classList.add('active');
+  E('n-'+page).classList.add('active');
+  E('pgTitle').textContent=PAGE_TITLES[page]||page;
+  if(page==='pb')rPB();else if(page==='term')rTA();else if(page==='ci')rCI();
+  else if(page==='ms')rMS();else if(page==='bc')rBCLog();
+  else if(page==='map')rMap();else if(page==='train')rTR();
+  else if(page==='adm'){rAD();E('cfg-dt').value=CFG.date;E('cfg-ag').value=CFG.agenda;E('cfg-ve').value=CFG.venue;E('gs-url').value=GS_URL;}
+  window.scrollTo(0,0);
+}
+function fgo(f){if(f==='pb'||f==='ci'||f==='ms')go(f);else{go('term');const m={exp:'exp','30':'30','90':'90'};if(m[f])E('ta-r').value=m[f];rTA();}}
+
+// ════════ SIDEBAR ════════
+function sbToggle(){const s=E('sb'),o=E('sbOv'),isOpen=s.classList.contains('open');s.classList.toggle('open');o.style.display=isOpen?'none':'block';}
+function sbClose(){if(window.innerWidth<=768){E('sb').classList.remove('open');E('sbOv').style.display='none';}}
+
+// ════════ CLOSE OVERLAYS ON BACKDROP ════════
+['ov-ci','ov-dt','ov-task','ov-train'].forEach(id=>{const el=E(id);if(el)el.addEventListener('click',e=>{if(e.target===el)closeOV(id);});});
+
+function rAll(){
+  rDash();
+  const views=['pb','term','ci','ms','bc','map','train','adm'];
+  const active=document.querySelector('.view.active');
+  if(active){const id=active.id.replace('v-','');if(views.includes(id))activate(id);}
+}
+
+// ════════ INIT ════════
+(function(){
+  load();
+  function tick(){const now=new Date();E('sbDate').textContent=now.toLocaleDateString('th-TH',{weekday:'short',year:'numeric',month:'short',day:'numeric'});}
+  tick();setInterval(tick,60000);
+  E('tp-tot').textContent=PPL.length+' คน';
+  rDash();
+})();
+</script>
+</body>
+</html>
