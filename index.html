@@ -814,7 +814,7 @@ let CI={},CFG={date:'',agenda:'',venue:'หอประชุมอำเภอ�
 function load(){
   const j=k=>{try{const d=localStorage.getItem(k);return d?JSON.parse(d):null;}catch(e){return null;}};
   CI=j(K.CI)||{};CFG={...CFG,...(j(K.CFG)||{})};
-  API_URL=localStorage.getItem(K.URL)||'';APIN=localStorage.getItem(K.PIN)||'1234';
+  API_URL=localStorage.getItem(K.URL)||'https://script.google.com/macros/s/AKfycbwDqFCbBm58BhsgNgdKbE_0J5FI-xX1EIaxST1LYYfCQverVUvpGl-gWIERzhvjrX3ryg/exec';APIN=localStorage.getItem(K.PIN)||'1234';
   TASKS=j(K.TASKS)||[];TRAINS=j(K.TR)||[];BCLOG=j(K.BC)||[];
   const pp=j(K.PPL);if(pp){PPL=pp;nUID=Math.max(...PPL.map(p=>p.uid))+1;}
 }
